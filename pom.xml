@@ -39,6 +39,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>izpack</groupId>
+            <artifactId>izpack</artifactId>
+            <version>4.3.0</version>
+        </dependency>
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>4.13.2</version>
@@ -72,9 +77,34 @@
         </dependency>
     </dependencies>
 
+    <repositories>
+      <repository>
+        <id>thirdparty</id>
+        <name>Third-party Artefacts</name>
+        <url>file:///./buildplan-maven-plugin/repo</url>
+      </repository>
+    </repositories>
+
     <build>
         <pluginManagement>
             <plugins>
+                <plugin>
+                    <groupId>org.openrewrite.maven</groupId>
+                    <artifactId>rewrite-maven-plugin</artifactId>
+                    <version>4.19.0</version>
+                    <configuration>
+                        <activeRecipes>
+                            <recipe>org.openrewrite.java.logging.slf4j.Log4jToSlf4j</recipe>
+                        </activeRecipes>
+                    </configuration>
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.openrewrite.recipe</groupId>
+                            <artifactId>rewrite-logging-frameworks</artifactId>
+                            <version>1.2.0</version>
+                        </dependency>
+                    </dependencies>
+                </plugin>
                 <plugin>
                     <groupId>org.jacoco</groupId>
                     <artifactId>jacoco-maven-plugin</artifactId>
@@ -249,6 +279,30 @@
     </reporting>
 
     <profiles>
+        <profile>
+            <id>rewrite</id>
+            <activation>
+                <property>
+                    <name>rewrite</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.openrewrite.maven</groupId>
+                        <artifactId>rewrite-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <phase>validate</phase>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
         <profile>
             <id>build-with-toolchains</id>
             <activation>
